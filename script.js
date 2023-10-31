@@ -1,7 +1,7 @@
 const canvas = document.querySelector("canvas");
 const c = canvas.getContext("2d");
-canvas.width = 450;
-canvas.height = 500;
+canvas.width = 1000;
+canvas.height = 800;
 
 class Sprite {
     constructor({ positions, velocity }) {
@@ -16,21 +16,18 @@ class Sprite {
 
     update = () => {
         for (const key in keysPressed) {
-            if (key === "ArrowRight" && keysPressed[key]) this.positions.x += this.velocity.x;
-            // else if (key === "ArrowRight" && !keysPressed[key]) this.velocity.x = 0
+            if (key === "ArrowRight" && keysPressed[key])
+                this.positions.x += this.velocity.x;
 
-            if (key === "ArrowLeft" && keysPressed[key]) this.positions.x += this.velocity.x * -1;
-            // else if (key === "ArrowLeft" && !keysPressed[key]) this.velocity.x = 0
+            if (key === "ArrowLeft" && keysPressed[key])
+                this.positions.x += this.velocity.x * -1;
 
-            if (key === "ArrowUp" && keysPressed[key]) this.positions.y += this.velocity.y * -1;
-            // else if (key === "ArrowUp" && !keysPressed[key]) this.velocity.y = 0
+            if (key === "ArrowUp" && keysPressed[key])
+                this.positions.y += this.velocity.y * -1;
 
-            if (key === "ArrowDown" && keysPressed[key]) this.positions.y += this.velocity.y;
-            // else if (key === "ArrowDown" && !keysPressed[key]) this.velocity.y = 0
+            if (key === "ArrowDown" && keysPressed[key])
+                this.positions.y += this.velocity.y;
         }
-
-        // this.positions.x += this.velocity.x
-        // this.positions.y += this.velocity.y
 
         this.draw();
     };
@@ -42,8 +39,8 @@ const player = new Sprite({
         y: 100,
     },
     velocity: {
-        x: 3,
-        y: 3,
+        x: 1,
+        y: 1,
     },
 });
 
