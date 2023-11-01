@@ -47,7 +47,8 @@ class Player {
 }
 
 class Enemy {
-    constructor({ size, position, velocity, color }) {
+    constructor({ id, size, position, velocity, color }) {
+        this.id = id;
         this.size = size;
         this.position = position;
         this.velocity = velocity;
@@ -56,6 +57,7 @@ class Enemy {
 
     spawn = () => {
         this.position.y += this.velocity.y;
+        this.position.x += this.velocity.x;
 
         c.fillStyle = this.color;
         c.fillRect(
@@ -73,19 +75,22 @@ const player = new Player({
         y: canvas.height - 100,
     },
     velocity: {
-        x: 2,
-        y: 2,
+        x: 1,
+        y: 1,
     },
 });
 
 const ENEMIES = [];
-let enemyVelocity = 1;
-let enemySpawnSpeed = 500;
+let ENEMY_VELOCITY_X = 0;
+let ENEMY_VELOCITY_Y = 1;
+let ENEMY_SPAWN_SPEED = 500;
+let ENEMY_ID = 1;
 
 const enemySpawnInterval = setInterval(() => {
     const enemy = new Enemy({
+        id: ENEMY_ID++,
         position: {
-            x: Math.floor(Math.random() * canvas.width),
+            x: Math.floor(Math.random() * canvas.width - 50),
             y: -50,
         },
         size: {
@@ -93,8 +98,8 @@ const enemySpawnInterval = setInterval(() => {
             height: Math.floor(Math.random() * 50) + 50,
         },
         velocity: {
-            x: enemyVelocity,
-            y: enemyVelocity,
+            x: ENEMY_VELOCITY_X * Math.floor(Math.random() * 3 - 1),
+            y: ENEMY_VELOCITY_Y,
         },
         color: `rgb(${Math.floor(Math.random() * 200) + 56}, 
             ${Math.floor(Math.random() * 200 + 56)}, 
@@ -102,12 +107,16 @@ const enemySpawnInterval = setInterval(() => {
     });
 
     ENEMIES.push(enemy);
-}, enemySpawnSpeed);
+}, ENEMY_SPAWN_SPEED--);
 
-setTimeout(() => {
-    enemyVelocity++;
-    enemySpawnSpeed--;
-}, 10000);
+const enemyVelocityInterval = setInterval(() => {
+    
+
+    if (ENEMY_VELOCITY_Y < 5) {
+        ENEMY_VELOCITY_Y++;
+    }
+    if (ENEMY_VELOCITY_X === 0) ENEMY_VELOCITY_X = 1;
+}, 5000);
 
 function animate() {
     window.requestAnimationFrame(animate);
@@ -124,8 +133,6 @@ const keysPressed = {
     ArrowDown: false,
 };
 
-animate();
-
 document.addEventListener("keydown", (e) => {
     if (e.key === "ArrowRight") keysPressed.ArrowRight = true;
     else if (e.key === "ArrowLeft") keysPressed.ArrowLeft = true;
@@ -139,3 +146,5 @@ document.addEventListener("keyup", (e) => {
     else if (e.key === "ArrowUp") keysPressed.ArrowUp = false;
     else if (e.key === "ArrowDown") keysPressed.ArrowDown = false;
 });
+
+animate();
