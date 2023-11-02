@@ -86,28 +86,40 @@ let ENEMY_VELOCITY_Y = 1;
 let ENEMY_SPAWN_SPEED = 500;
 let ENEMY_ID = 1;
 
-const enemySpawnInterval = setInterval(() => {
-    const enemy = new Enemy({
-        id: ENEMY_ID++,
-        position: {
-            x: Math.floor(Math.random() * canvas.width - 50),
-            y: -50,
-        },
-        size: {
-            width: Math.floor(Math.random() * 50) + 50,
-            height: Math.floor(Math.random() * 50) + 50,
-        },
-        velocity: {
-            x: ENEMY_VELOCITY_X * Math.floor(Math.random() * 3 - 1),
-            y: ENEMY_VELOCITY_Y,
-        },
-        color: `rgb(${Math.floor(Math.random() * 200) + 56}, 
-            ${Math.floor(Math.random() * 200 + 56)}, 
-            ${Math.floor(Math.random() * 200 + 56)})`,
-    });
+function enemySpawn(){
+    const spawnInterval = setInterval(() => {
+        const enemy = new Enemy({
+            id: ENEMY_ID++,
+            position: {
+                x: Math.floor(Math.random() * canvas.width - 50),
+                y: -50,
+            },
+            size: {
+                width: Math.floor(Math.random() * 50) + 50,
+                height: Math.floor(Math.random() * 50) + 50,
+            },
+            velocity: {
+                x: ENEMY_VELOCITY_X * Math.floor(Math.random() * 3 - 1),
+                y: ENEMY_VELOCITY_Y,
+            },
+            color: `rgb(${Math.floor(Math.random() * 200) + 56}, 
+                ${Math.floor(Math.random() * 200 + 56)}, 
+                ${Math.floor(Math.random() * 200 + 56)})`,
+        });
+    
+        ENEMIES.push(enemy);
 
-    ENEMIES.push(enemy);
-}, ENEMY_SPAWN_SPEED--);
+        console.log(ENEMY_SPAWN_SPEED)
+
+        if (ENEMIES.length % 10 === 0) {
+            ENEMY_SPAWN_SPEED -= 50
+            clearInterval(spawnInterval)
+            enemySpawn()
+        }
+    }, ENEMY_SPAWN_SPEED);
+}
+
+enemySpawn()
 
 const enemyVelocityInterval = setInterval(() => {
     
