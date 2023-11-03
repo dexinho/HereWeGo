@@ -9,6 +9,7 @@ main {
     justify-content: center;
 }
 
-canvas {
-    background-color: rgb(252, 209, 209);
+#canvas-container {
+    border: 10px solid rgb(161, 71, 71);
+    height: 700px;
 }
