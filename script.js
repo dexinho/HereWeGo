@@ -17,25 +17,25 @@ class Player {
     update = () => {
         for (const key in keysPressed) {
             if (
-                key === "ArrowRight" &&
+                key === "arrowRight" &&
                 keysPressed[key] &&
                 this.position.x + this.velocity < canvas.width - 50
             )
                 this.position.x += this.velocity;
             if (
-                key === "ArrowLeft" &&
+                key === "arrowLeft" &&
                 keysPressed[key] &&
                 this.position.x - this.velocity >= 0
             )
                 this.position.x += this.velocity * -1;
             if (
-                key === "ArrowUp" &&
+                key === "arrowUp" &&
                 keysPressed[key] &&
                 this.position.y + this.velocity >= 0
             )
                 this.position.y += this.velocity * -1;
             if (
-                key === "ArrowDown" &&
+                key === "arrowDown" &&
                 keysPressed[key] &&
                 this.position.y + this.velocity <= canvas.height - 50
             )
@@ -147,24 +147,24 @@ function animate() {
 }
 
 const keysPressed = {
-    ArrowRight: false,
-    ArrowLeft: false,
-    ArrowUp: false,
-    ArrowDown: false,
+    arrowRight: false,
+    arrowLeft: false,
+    arrowUp: false,
+    arrowDown: false,
 };
 
 document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowRight") keysPressed.ArrowRight = true;
-    else if (e.key === "ArrowLeft") keysPressed.ArrowLeft = true;
-    else if (e.key === "ArrowUp") keysPressed.ArrowUp = true;
-    else if (e.key === "ArrowDown") keysPressed.ArrowDown = true;
+    if (e.key === "arrowRight") keysPressed.arrowRight = true;
+    else if (e.key === "arrowLeft") keysPressed.arrowLeft = true;
+    else if (e.key === "arrowUp") keysPressed.arrowUp = true;
+    else if (e.key === "arrowDown") keysPressed.arrowDown = true;
 });
 
 document.addEventListener("keyup", (e) => {
-    if (e.key === "ArrowRight") keysPressed.ArrowRight = false;
-    else if (e.key === "ArrowLeft") keysPressed.ArrowLeft = false;
-    else if (e.key === "ArrowUp") keysPressed.ArrowUp = false;
-    else if (e.key === "ArrowDown") keysPressed.ArrowDown = false;
+    if (e.key === "arrowRight") keysPressed.arrowRight = false;
+    else if (e.key === "arrowLeft") keysPressed.arrowLeft = false;
+    else if (e.key === "arrowUp") keysPressed.arrowUp = false;
+    else if (e.key === "arrowDown") keysPressed.arrowDown = false;
 });
 
 animate();
