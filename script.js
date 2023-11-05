@@ -187,6 +187,16 @@ const removeObstacle = (id) => {
     OBSTACLES.splice(obstacleIndex, 1);
 };
 
+const resetSettings = () => {
+    player.setVelocity = 1;
+    ENEMY_VELOCITY_X = 0;
+    ENEMY_VELOCITY_Y = 1;
+    ENEMY_SPAWN_SPEED = 1000;
+    OBSTACLE_ID = 1;
+    HIGHSCORE = 0;
+    OBSTACLES.length = 0;
+};
+
 const checkIfOutOfBounds = ({ id, posX, posY, width }) => {
     if (posY > canvas.height) {
         removeObstacle(id);
@@ -218,14 +228,21 @@ const updateHighscore = () => {
     highscoreDiv.innerText = HIGHSCORE;
 };
 
-const enemyVelocityInterval = setInterval(() => {
-    if (ENEMY_VELOCITY_Y < 6) {
-        ENEMY_VELOCITY_Y++;
-        player.setVelocity = ++player.getVelocity;
-    }
-    if (ENEMY_VELOCITY_Y === 4) ENEMY_VELOCITY_X = 3;
-    if (ENEMY_VELOCITY_X === 0) ENEMY_VELOCITY_X = 1;
-}, ENEMY_SPAWN_SPEED * 15);
+let ENEMY_VELOCITY_INTERVAL;
+const updateEnemeyVelocityInterval = () => {
+    clearInterval(ENEMY_VELOCITY_INTERVAL);
+
+    ENEMY_VELOCITY_INTERVAL = setInterval(() => {
+        if (ENEMY_VELOCITY_Y < 6) {
+            ENEMY_VELOCITY_Y++;
+            player.setVelocity = ++player.getVelocity;
+        }
+        if (ENEMY_VELOCITY_Y === 4) ENEMY_VELOCITY_X = 3;
+        if (ENEMY_VELOCITY_X === 0) ENEMY_VELOCITY_X = 1;
+    }, ENEMY_SPAWN_SPEED * 15);
+};
+
+const endingDialog = document.querySelector("#ending-dialog");
 
 function animate() {
     const frame = window.requestAnimationFrame(animate);
@@ -247,6 +264,8 @@ function animate() {
             LIVES_LEFT === 0
         ) {
             window.cancelAnimationFrame(frame);
+            endingDialog.showModal();
+            writeStats();
         }
         obstacle.velocity.x *= checkIfOutOfBounds({
             id: obstacle.id,
@@ -258,6 +277,40 @@ function animate() {
 
     updateHighscore();
 }
+
+const TIMEOUT_IDS = [];
+
+const writeLetterByLetter = (placeToWrite, text) => {
+    placeToWrite.innerText = "";
+    for (const id of TIMEOUT_IDS) clearTimeout(id);
+
+    return new Promise((res) => {
+        for (let i = 0; i < text.length; i++) {
+            TIMEOUT_IDS.push(
+                setTimeout(() => {
+                    placeToWrite.textContent += text[i];
+                    if (i === text.length - 1) res();
+                }, i * 30)
+            );
+        }
+    });
+};
+
+const writeStats = async () => {
+    const nicknameDialogSpan = document.querySelector("#nickname-dialog-span");
+    const pointsScoredDialogSpan = document.querySelector(
+        "#points-scored-dialog-span"
+    );
+
+    console.log(nicknameDialogSpan);
+    console.log(pointsScoredDialogSpan);
+
+    let nickname = `Player: ${nicknameInput.value}`;
+    let pointsScored = `Points: ${HIGHSCORE}`;
+
+    await writeLetterByLetter(nicknameDialogSpan, nickname);
+    await writeLetterByLetter(pointsScoredDialogSpan, pointsScored);
+};
 
 const keysPressed = {
     ArrowRight: false,
@@ -286,9 +339,17 @@ startBtns.forEach((button) => {
         LIVES_LEFT =
             button.id === "normal-btn" ? createHearts(3) : createHearts(1);
 
+        resetSettings();
         updateInverval();
+        updateEnemeyVelocityInterval();
         animate();
         nicknameDiv.innerText = nicknameInput.value;
         mainMenuDiv.style.display = "none";
     });
+});
+
+const playAgainBtn = document.querySelector("#play-again-btn");
+playAgainBtn.addEventListener("click", () => {
+    endingDialog.close();
+    mainMenuDiv.style.display = "flex";
 });

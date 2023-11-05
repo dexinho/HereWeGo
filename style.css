@@ -30,7 +30,7 @@ main {
     align-items: center;
     flex-wrap: wrap;
     padding: 2rem;
-    border: 2px ridge rgb(107, 60, 138);
+    border: 2px ridge rgb(133, 138, 60);
 }
 
 #main-menu-div>* {
@@ -85,4 +85,28 @@ button:hover {
     color: bisque;
     font-size: 1.8rem;
     text-align: center;
+}
+
+#ending-dialog {
+    margin: auto;
+    width: 300px;
+    height: 210px;
+}
+
+#ending-dialog-div {
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+#nickname-dialog-div, #points-scored-dialog-div, #play-again-btn {
+    width: 90%;
+    height: 3rem;
+}
+
+#play-again-btn, #nickname-dialog-div, #points-scored-dialog-div {
+    font-size: 1.4rem;
 }
