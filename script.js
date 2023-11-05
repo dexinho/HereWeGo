@@ -3,6 +3,9 @@ const CX = canvas.getContext("2d");
 canvas.width = 1000;
 canvas.height = 700;
 
+const highscoreCountDiv = document.querySelector('#highscore-count-div')
+let HIGHSCORE = 0;
+
 const playerWidth = 50;
 const playerHeight = 50;
 
@@ -130,16 +133,16 @@ function enemySpawn() {
 
     if (OBSTACLES.length % 5 === 0) {
         ENEMY_SPAWN_SPEED -= 10;
-        spliceObstacles();
+        // spliceObstacles();
         updateInverval();
     }
 }
 
-const spliceObstacles = () => {
-    OBSTACLES.splice(5);
-};
+// const spliceObstacles = () => {
+//     OBSTACLES.splice(5);
+// };
 
-const checkIfCollisionHappaned = ({ posX, posY, width, height }) => {
+const checkForCollision = ({ posX, posY, width, height }) => {
     if (
         (posX + width === player.position.x &&
             posY + height === player.position.y) ||
@@ -150,6 +153,22 @@ const checkIfCollisionHappaned = ({ posX, posY, width, height }) => {
         console.log("collision");
     }
 };
+
+const checkIfOutOfBounds = (obstacle) => {
+    let indexToRemove = OBSTACLES.findIndex(el => el.id === obstacle.id)
+    if (obstacle.position.y > canvas.height) {
+        OBSTACLES.splice(indexToRemove, 1)
+        HIGHSCORE++
+        console.log(OBSTACLES);
+    }
+};
+
+const updateHighscore = () => {
+
+    CX.font = '30px Arial'
+    CX.fillStyle = 'white'
+    CX.fillText(HIGHSCORE, HIGHSCORE < 10 ? 950 : 940, 40)
+}
 
 const enemyVelocityInterval = setInterval(() => {
     if (ENEMY_VELOCITY_Y < 5) {
@@ -166,14 +185,18 @@ function animate() {
     player.update();
     OBSTACLES.forEach((obstacle) => {
         obstacle.move();
-
-        checkIfCollisionHappaned({
+        
+        checkForCollision({
             posX: obstacle.position.x,
             posY: obstacle.position.y,
             width: obstacle.width,
             height: obstacle.height,
         });
+
+        checkIfOutOfBounds(obstacle);
     });
+
+    updateHighscore()
 }
 
 const keysPressed = {
