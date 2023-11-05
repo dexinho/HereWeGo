@@ -24,7 +24,9 @@ main {
     position: absolute;
     width: 300px;
     height: 300px;
-    background-color: rgb(255, 255, 255);
+    inset: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgb(206, 155, 155);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -60,7 +62,7 @@ button:hover {
     padding: 0.2rem;
 }
 
-#stats-div > * {
+#stats-div>* {
     width: 100px;
 }
 
@@ -87,26 +89,38 @@ button:hover {
     text-align: center;
 }
 
-#ending-dialog {
-    margin: auto;
+/* #ending-dialog {
+    position: absolute;
+    inset: 50%;
+    transform: translate(-50%, -50%);
     width: 300px;
-    height: 210px;
-}
+    height: 300px;
+} */
 
 #ending-dialog-div {
-    padding: 1rem;
-    display: flex;
+    display: none;
+    width: 300px;
+    height: 210px;
+    position: absolute;
+    inset: 50%;
+    transform: translate(-50%, -50%);
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
     gap: 0.6rem;
+    padding: 1rem;
+    background-color: rgb(163, 151, 151);
 }
 
-#nickname-dialog-div, #points-scored-dialog-div, #play-again-btn {
+#nickname-dialog-div,
+#points-scored-dialog-div,
+#play-again-btn {
+    color: blue;
     width: 90%;
     height: 3rem;
+    font-size: 1.4rem;
 }
 
-#play-again-btn, #nickname-dialog-div, #points-scored-dialog-div {
-    font-size: 1.4rem;
+#play-again-btn {
+    color: black;
 }

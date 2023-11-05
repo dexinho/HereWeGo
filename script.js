@@ -250,7 +250,7 @@ const updateEnemeyVelocityInterval = () => {
     }, ENEMY_SPAWN_SPEED * 15);
 };
 
-const endingDialog = document.querySelector("#ending-dialog");
+const endingDialogDiv = document.querySelector("#ending-dialog-div");
 
 function animate() {
     const frame = window.requestAnimationFrame(animate);
@@ -272,7 +272,7 @@ function animate() {
             LIVES_LEFT === 0
         ) {
             window.cancelAnimationFrame(frame);
-            endingDialog.showModal();
+            endingDialogDiv.style.display = 'flex'
             writeStats();
         }
         obstacle.velocity.x *= checkIfOutOfBounds({
@@ -358,6 +358,6 @@ startBtns.forEach((button) => {
 
 const playAgainBtn = document.querySelector("#play-again-btn");
 playAgainBtn.addEventListener("click", () => {
-    endingDialog.close();
+    endingDialogDiv.style.display = 'none'
     mainMenuDiv.style.display = "flex";
 });
