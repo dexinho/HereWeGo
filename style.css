@@ -33,6 +33,7 @@ main {
     flex-wrap: wrap;
     padding: 2rem;
     border: 2px ridge rgb(133, 138, 60);
+    border-radius: 2rem;
 }
 
 #main-menu-div>* {
@@ -91,17 +92,18 @@ button:hover {
 
 #ending-div {
     display: none;
+    position: absolute;
     width: 300px;
     height: 250px;
-    position: absolute;
+    padding: 1rem;
+    background-color: rgb(163, 151, 151);
+    border-radius: 2rem;
     inset: 50%;
     transform: translate(-50%, -50%);
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
     gap: 0.6rem;
-    padding: 1rem;
-    background-color: rgb(163, 151, 151);
 }
 
 #nickname-result-div,
