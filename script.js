@@ -1,13 +1,15 @@
 const canvas = document.querySelector("canvas");
 const CX = canvas.getContext("2d");
 canvas.width = 1000;
-canvas.height = 700;
+canvas.height = 650;
+CX.fillStyle = "black";
+CX.fillRect(0, 0, canvas.width, canvas.height);
 
-const highscoreCountDiv = document.querySelector('#highscore-count-div')
+const highscoreCountDiv = document.querySelector("#highscore-count-div");
 let HIGHSCORE = 0;
 
-const playerWidth = 50;
-const playerHeight = 50;
+let PLAYER_WIDTH = 50;
+let PLAYER_HEIGHT = 50;
 
 class Player {
     constructor({ position, velocity }) {
@@ -20,8 +22,8 @@ class Player {
         CX.fillRect(
             this.position.x,
             this.position.y,
-            playerWidth,
-            playerHeight
+            PLAYER_WIDTH,
+            PLAYER_HEIGHT
         );
     };
 
@@ -30,7 +32,7 @@ class Player {
             if (
                 key === "ArrowRight" &&
                 keysPressed[key] &&
-                this.position.x + this.velocity < canvas.width - playerWidth
+                this.position.x + this.velocity < canvas.width - PLAYER_WIDTH
             )
                 this.position.x += this.velocity;
             if (
@@ -48,7 +50,7 @@ class Player {
             if (
                 key === "ArrowDown" &&
                 keysPressed[key] &&
-                this.position.y + this.velocity <= canvas.height - playerHeight
+                this.position.y + this.velocity <= canvas.height - PLAYER_HEIGHT
             )
                 this.position.y += this.velocity;
         }
@@ -90,7 +92,7 @@ class Enemy {
 
 const player = new Player({
     position: {
-        x: (canvas.width - playerWidth) / 2,
+        x: (canvas.width - PLAYER_WIDTH) / 2,
         y: canvas.height - 100,
     },
     velocity: 1,
@@ -102,7 +104,7 @@ let ENEMY_VELOCITY_Y = 1;
 let ENEMY_SPAWN_SPEED = 1000;
 let OBSTACLE_ID = 1;
 
-let SPAWN_INTERVAL = setInterval(enemySpawn, ENEMY_SPAWN_SPEED);
+let SPAWN_INTERVAL;
 
 function updateInverval() {
     clearInterval(SPAWN_INTERVAL);
@@ -113,8 +115,8 @@ function enemySpawn() {
     const obstacle = new Enemy({
         id: OBSTACLE_ID++,
         position: {
-            x: Math.floor(Math.random() * canvas.width - 50),
-            y: -50,
+            x: Math.floor(Math.random() * (canvas.width - 150) + 50),
+            y: -100,
         },
         size: {
             width: Math.floor(Math.random() * 50) + canvas.width / 10,
@@ -131,72 +133,78 @@ function enemySpawn() {
 
     OBSTACLES.unshift(obstacle);
 
-    if (OBSTACLES.length % 5 === 0) {
-        ENEMY_SPAWN_SPEED -= 10;
-        // spliceObstacles();
+    if (OBSTACLES.length % 5 === 0 && ENEMY_SPAWN_SPEED > 200) {
+        ENEMY_SPAWN_SPEED -= 100;
         updateInverval();
     }
 }
-
-// const spliceObstacles = () => {
-//     OBSTACLES.splice(5);
-// };
 
 const checkForCollision = ({ posX, posY, width, height }) => {
     if (
         (posX + width === player.position.x &&
             posY + height === player.position.y) ||
-        (posX === player.position.x + playerWidth &&
-            posY === player.position.y + playerHeight)
+        (posX === player.position.x + PLAYER_WIDTH &&
+            posY === player.position.y + PLAYER_HEIGHT)
     ) {
         console.log("---------");
         console.log("collision");
     }
 };
 
-const checkIfOutOfBounds = (obstacle) => {
-    let indexToRemove = OBSTACLES.findIndex(el => el.id === obstacle.id)
-    if (obstacle.position.y > canvas.height) {
-        OBSTACLES.splice(indexToRemove, 1)
-        HIGHSCORE++
-        console.log(OBSTACLES);
+const checkIfOutOfBounds = ({ id, posX, posY, width }) => {
+    let obstacleIndex = OBSTACLES.findIndex((obstacle) => obstacle.id === id);
+
+    if (posY > canvas.height) {
+        OBSTACLES.splice(obstacleIndex, 1);
+        HIGHSCORE++;
     }
+
+    if (posX + width > canvas.width || posX < 0) return -1;
+
+    return 1;
 };
 
-const updateHighscore = () => {
+const highscoreDiv = document.querySelector('#highscore-div')
+const livesLeftDiv = document.querySelector('#lives-left-div')
 
-    CX.font = '30px Arial'
-    CX.fillStyle = 'white'
-    CX.fillText(HIGHSCORE, HIGHSCORE < 10 ? 950 : 940, 40)
-}
+const updateHighscore = () => {
+    highscoreDiv.innerText = HIGHSCORE;
+};
 
 const enemyVelocityInterval = setInterval(() => {
-    if (ENEMY_VELOCITY_Y < 5) {
+    if (ENEMY_VELOCITY_Y < 6) {
         ENEMY_VELOCITY_Y++;
         player.setVelocity = ++player.getVelocity;
     }
+    if (ENEMY_VELOCITY_Y === 4) ENEMY_VELOCITY_X = 3;
     if (ENEMY_VELOCITY_X === 0) ENEMY_VELOCITY_X = 1;
-}, ENEMY_SPAWN_SPEED * 10);
+}, ENEMY_SPAWN_SPEED * 15);
 
 function animate() {
     window.requestAnimationFrame(animate);
     CX.fillStyle = "black";
     CX.fillRect(0, 0, canvas.width, canvas.height);
     player.update();
+
     OBSTACLES.forEach((obstacle) => {
         obstacle.move();
-        
+
         checkForCollision({
             posX: obstacle.position.x,
             posY: obstacle.position.y,
-            width: obstacle.width,
-            height: obstacle.height,
+            width: obstacle.size.width,
+            height: obstacle.size.height,
         });
 
-        checkIfOutOfBounds(obstacle);
+        obstacle.velocity.x *= checkIfOutOfBounds({
+            id: obstacle.id,
+            posX: obstacle.position.x,
+            posY: obstacle.position.y,
+            width: obstacle.size.width,
+        });
     });
 
-    updateHighscore()
+    updateHighscore();
 }
 
 const keysPressed = {
@@ -216,4 +224,18 @@ function whichKeyIsPressed(key, down = true) {
 document.addEventListener("keydown", (e) => whichKeyIsPressed(e.key));
 document.addEventListener("keyup", (e) => whichKeyIsPressed(e.key, false));
 
-animate();
+const startBtns = document.querySelectorAll(".start-btns");
+const mainMenuDiv = document.querySelector("#main-menu-div");
+const nicknameDiv = document.querySelector('#nickname-div')
+const nicknameInput = document.querySelector('#nickname-input')
+
+startBtns.forEach((button) => {
+    button.addEventListener("click", () => {
+        if (button.id === "normal-btn") {
+            mainMenuDiv.style.display = "none";
+            nicknameDiv.innerText = nicknameInput.value
+            updateInverval();
+            animate();
+        }
+    });
+});

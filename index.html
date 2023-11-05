@@ -5,15 +5,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="script.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="style.css">
     <title>HereWeGo</title>
 </head>
 
 <body>
     <main>
-        <div id="canvas-container">
-            <canvas></canvas>
+        <div id='main-menu-div'>
+            <label for="nickname-input"><input id='nickname-input' type="text" placeholder="nickname"></label>
+            <button class="start-btns" id="normal-btn">Normal</button>
+            <button class="start-btns" id="challenge-btn">Challenge</button>
         </div>
+        <div id="game-layout-div">
+            <div id="stats-div">
+                <div id="lives-left-div">
+                    <i class="fa-solid fa-heart"></i>
+                    <i class="fa-solid fa-heart"></i>
+                    <i class="fa-solid fa-heart"></i>
+                </div>
+                <div id="nickname-div"></div>
+                <div id="highscore-div">0</div>
+            </div>
+            <div id="canvas-container">
+                <canvas></canvas>
+            </div>
+        </div>
+       
     </main>
 </body>
 
