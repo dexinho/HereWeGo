@@ -3,6 +3,9 @@ const CX = canvas.getContext("2d");
 canvas.width = 1000;
 canvas.height = 700;
 
+const playerWidth = 50;
+const playerHeight = 50;
+
 class Player {
     constructor({ position, velocity }) {
         this.position = position;
@@ -11,40 +14,44 @@ class Player {
 
     draw = () => {
         CX.fillStyle = "red";
-        CX.fillRect(this.position.x, this.position.y, 50, 50);
+        CX.fillRect(
+            this.position.x,
+            this.position.y,
+            playerWidth,
+            playerHeight
+        );
     };
 
     update = () => {
         for (const key in keysPressed) {
             if (
-                key === "arrowRight" &&
+                key === "ArrowRight" &&
                 keysPressed[key] &&
-                this.position.x + this.velocity < canvas.width - 50
+                this.position.x + this.velocity < canvas.width - playerWidth
             )
                 this.position.x += this.velocity;
             if (
-                key === "arrowLeft" &&
+                key === "ArrowLeft" &&
                 keysPressed[key] &&
                 this.position.x - this.velocity >= 0
             )
                 this.position.x += this.velocity * -1;
             if (
-                key === "arrowUp" &&
+                key === "ArrowUp" &&
                 keysPressed[key] &&
                 this.position.y + this.velocity >= 0
             )
                 this.position.y += this.velocity * -1;
             if (
-                key === "arrowDown" &&
+                key === "ArrowDown" &&
                 keysPressed[key] &&
-                this.position.y + this.velocity <= canvas.height - 50
+                this.position.y + this.velocity <= canvas.height - playerHeight
             )
                 this.position.y += this.velocity;
         }
 
         this.draw();
     };
-
 
     get getVelocity() {
         return this.velocity;
@@ -64,7 +71,7 @@ class Enemy {
         this.color = color;
     }
 
-    spawn = () => {
+    move = () => {
         this.position.y += this.velocity.y;
         this.position.x += this.velocity.x;
 
@@ -80,13 +87,13 @@ class Enemy {
 
 const player = new Player({
     position: {
-        x: canvas.width / 2 - 25,
+        x: (canvas.width - playerWidth) / 2,
         y: canvas.height - 100,
     },
     velocity: 1,
 });
 
-const ENEMIES = [];
+const OBSTACLES = [];
 let ENEMY_VELOCITY_X = 0;
 let ENEMY_VELOCITY_Y = 1;
 let ENEMY_SPAWN_SPEED = 1000;
@@ -107,8 +114,8 @@ function enemySpawn() {
             y: -50,
         },
         size: {
-            width: Math.floor(Math.random() * 50) + 50,
-            height: Math.floor(Math.random() * 50) + 50,
+            width: Math.floor(Math.random() * 50) + canvas.width / 10,
+            height: Math.floor(Math.random() * 50) + canvas.height / 10,
         },
         velocity: {
             x: ENEMY_VELOCITY_X * Math.floor(Math.random() * 3 - 1),
@@ -119,20 +126,34 @@ function enemySpawn() {
             ${Math.floor(Math.random() * 200 + 56)})`,
     });
 
-    console.log(ENEMY_SPAWN_SPEED);
+    OBSTACLES.unshift(obstacle);
 
-    ENEMIES.push(obstacle);
-
-    if (ENEMIES.length % 10 === 0) {
-        ENEMY_SPAWN_SPEED -= 50;
+    if (OBSTACLES.length % 5 === 0) {
+        ENEMY_SPAWN_SPEED -= 10;
+        spliceObstacles();
         updateInverval();
     }
 }
 
+const spliceObstacles = () => {
+    OBSTACLES.splice(5);
+};
+
+const checkIfCollisionHappaned = ({ posX, posY, width, height }) => {
+    if (
+        (posX + width === player.position.x &&
+            posY + height === player.position.y) ||
+        (posX === player.position.x + playerWidth &&
+            posY === player.position.y + playerHeight)
+    ) {
+        console.log("---------");
+        console.log("collision");
+    }
+};
+
 const enemyVelocityInterval = setInterval(() => {
     if (ENEMY_VELOCITY_Y < 5) {
         ENEMY_VELOCITY_Y++;
-
         player.setVelocity = ++player.getVelocity;
     }
     if (ENEMY_VELOCITY_X === 0) ENEMY_VELOCITY_X = 1;
@@ -143,28 +164,33 @@ function animate() {
     CX.fillStyle = "black";
     CX.fillRect(0, 0, canvas.width, canvas.height);
     player.update();
-    ENEMIES.forEach((enemy) => enemy.spawn());
+    OBSTACLES.forEach((obstacle) => {
+        obstacle.move();
+
+        checkIfCollisionHappaned({
+            posX: obstacle.position.x,
+            posY: obstacle.position.y,
+            width: obstacle.width,
+            height: obstacle.height,
+        });
+    });
 }
 
 const keysPressed = {
-    arrowRight: false,
-    arrowLeft: false,
-    arrowUp: false,
-    arrowDown: false,
+    ArrowRight: false,
+    ArrowLeft: false,
+    ArrowUp: false,
+    ArrowDown: false,
 };
 
-document.addEventListener("keydown", (e) => {
-    if (e.key === "arrowRight") keysPressed.arrowRight = true;
-    else if (e.key === "arrowLeft") keysPressed.arrowLeft = true;
-    else if (e.key === "arrowUp") keysPressed.arrowUp = true;
-    else if (e.key === "arrowDown") keysPressed.arrowDown = true;
-});
+function whichKeyIsPressed(key, down = true) {
+    if (key === "ArrowRight") keysPressed[key] = down ? true : false;
+    else if (key === "ArrowLeft") keysPressed[key] = down ? true : false;
+    else if (key === "ArrowUp") keysPressed[key] = down ? true : false;
+    else if (key === "ArrowDown") keysPressed[key] = down ? true : false;
+}
 
-document.addEventListener("keyup", (e) => {
-    if (e.key === "arrowRight") keysPressed.arrowRight = false;
-    else if (e.key === "arrowLeft") keysPressed.arrowLeft = false;
-    else if (e.key === "arrowUp") keysPressed.arrowUp = false;
-    else if (e.key === "arrowDown") keysPressed.arrowDown = false;
-});
+document.addEventListener("keydown", (e) => whichKeyIsPressed(e.key));
+document.addEventListener("keyup", (e) => whichKeyIsPressed(e.key, false));
 
 animate();
