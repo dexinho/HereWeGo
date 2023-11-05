@@ -5,16 +5,32 @@ canvas.height = 650;
 ctx.fillStyle = "black";
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-const icon = new Image();
-icon.src = "assets/transformers_icon_2.png";
-icon.onload = () => {
-    ctx.drawImage(icon, 400, 300, 50, 50);
-};
-
-const highscoreCountDiv = document.querySelector("#highscore-count-div");
 let HIGHSCORE = 0;
 let SURVIVED_TIME = 0;
 let LIVES_LEFT = 0;
+let ENEMY_VELOCITY_X = 0;
+let ENEMY_VELOCITY_Y = 1;
+let ENEMY_SPAWN_SPEED = 1000;
+let OBSTACLE_ID = 1;
+let SPAWN_INTERVAL;
+let TIMER_INTERVAL;
+let OBSTACLE_VELOCITY_INTERVAL;
+
+const TIMEOUT_IDS = [];
+const OBSTACLES = [];
+
+const highscoreCountDiv = document.querySelector("#highscore-count-div");
+const endingDialogDiv = document.querySelector("#ending-div");
+const highscoreDiv = document.querySelector("#highscore-div");
+const livesLeftDiv = document.querySelector("#lives-left-div");
+const playAgainBtn = document.querySelector("#play-again-btn");
+const startBtns = document.querySelectorAll(".start-btns");
+const mainMenuDiv = document.querySelector("#main-menu-div");
+const nicknameDiv = document.querySelector("#nickname-div");
+const nicknameInput = document.querySelector("#nickname-input");
+
+const ICON = new Image();
+ICON.src = "assets/transformers_icon_2.png";
 
 class Player {
     constructor({ position, velocity, size }) {
@@ -25,7 +41,7 @@ class Player {
 
     draw = () => {
         ctx.drawImage(
-            icon,
+            ICON,
             this.position.x,
             this.position.y,
             this.size.width,
@@ -36,25 +52,25 @@ class Player {
     update = () => {
         for (const key in keysPressed) {
             if (
-                key === "ArrowRight" &&
+                key === "d" &&
                 keysPressed[key] &&
                 this.position.x + this.velocity < canvas.width - this.size.width
             )
                 this.position.x += this.velocity;
             if (
-                key === "ArrowLeft" &&
+                key === "a" &&
                 keysPressed[key] &&
                 this.position.x - this.velocity >= 0
             )
                 this.position.x += this.velocity * -1;
             if (
-                key === "ArrowUp" &&
+                key === "w" &&
                 keysPressed[key] &&
                 this.position.y + this.velocity >= 0
             )
                 this.position.y += this.velocity * -1;
             if (
-                key === "ArrowDown" &&
+                key === "s" &&
                 keysPressed[key] &&
                 this.position.y + this.velocity <=
                     canvas.height - this.size.height
@@ -74,7 +90,7 @@ class Player {
     }
 }
 
-class Enemy {
+class Obstacle {
     constructor({ id, size, position, velocity, color }) {
         this.id = id;
         this.size = size;
@@ -109,21 +125,13 @@ const player = new Player({
     velocity: 1,
 });
 
-const OBSTACLES = [];
-let ENEMY_VELOCITY_X = 0;
-let ENEMY_VELOCITY_Y = 1;
-let ENEMY_SPAWN_SPEED = 1000;
-let OBSTACLE_ID = 1;
-
-let SPAWN_INTERVAL;
-
 function updateSpawnInterval() {
     clearInterval(SPAWN_INTERVAL);
     SPAWN_INTERVAL = setInterval(enemySpawn, ENEMY_SPAWN_SPEED);
 }
 
 function enemySpawn() {
-    const obstacle = new Enemy({
+    const obstacle = new Obstacle({
         id: OBSTACLE_ID++,
         position: {
             x: Math.floor(Math.random() * (canvas.width - 150) + 50),
@@ -179,22 +187,20 @@ const checkForCollision = ({ id, posX, posY, width, height }) => {
         playerBottom > obstacleTop &&
         playerLeft < obstacleRight
     ) {
-        console.log("collision");
-        removeObstacle(id);
+        removeCollidedObstacle(id);
         changeHeartShape();
-        LIVES_LEFT--;
         return true;
     }
 
     return false;
 };
 
-const removeObstacle = (id) => {
+const removeCollidedObstacle = (id) => {
     let obstacleIndex = OBSTACLES.findIndex((obstacle) => obstacle.id === id);
     OBSTACLES.splice(obstacleIndex, 1);
+    LIVES_LEFT--;
 };
 
-let TIMER_INTERVAL;
 const startTimer = () => {
     TIMER_INTERVAL = setInterval(() => {
         SURVIVED_TIME++;
@@ -220,7 +226,7 @@ const resetSettings = () => {
 
 const checkIfOutOfBounds = ({ id, posX, posY, width }) => {
     if (posY > canvas.height) {
-        removeObstacle(id);
+        removeCollidedObstacle(id);
         HIGHSCORE++;
     }
 
@@ -228,9 +234,6 @@ const checkIfOutOfBounds = ({ id, posX, posY, width }) => {
 
     return 1;
 };
-
-const highscoreDiv = document.querySelector("#highscore-div");
-const livesLeftDiv = document.querySelector("#lives-left-div");
 
 const createHearts = (quantity) => {
     livesLeftDiv.innerText = "";
@@ -249,11 +252,10 @@ const updateHighscore = () => {
     highscoreDiv.innerText = HIGHSCORE;
 };
 
-let ENEMY_VELOCITY_INTERVAL;
 const updateEnemeyVelocityInterval = () => {
-    clearInterval(ENEMY_VELOCITY_INTERVAL);
+    clearInterval(OBSTACLE_VELOCITY_INTERVAL);
 
-    ENEMY_VELOCITY_INTERVAL = setInterval(() => {
+    OBSTACLE_VELOCITY_INTERVAL = setInterval(() => {
         if (ENEMY_VELOCITY_Y < 6) {
             ENEMY_VELOCITY_Y++;
             player.setVelocity = ++player.getVelocity;
@@ -262,8 +264,6 @@ const updateEnemeyVelocityInterval = () => {
         if (ENEMY_VELOCITY_X === 0) ENEMY_VELOCITY_X = 1;
     }, ENEMY_SPAWN_SPEED * 15);
 };
-
-const endingDialogDiv = document.querySelector("#ending-div");
 
 function animate() {
     const frame = window.requestAnimationFrame(animate);
@@ -300,8 +300,6 @@ function animate() {
     updateHighscore();
 }
 
-const TIMEOUT_IDS = [];
-
 const writeLetterByLetter = (placeToWrite, text) => {
     placeToWrite.innerText = "";
     for (const id of TIMEOUT_IDS) clearTimeout(id);
@@ -333,35 +331,30 @@ const writeStats = async () => {
 };
 
 const keysPressed = {
-    ArrowRight: false,
-    ArrowLeft: false,
-    ArrowUp: false,
-    ArrowDown: false,
+    w: false,
+    d: false,
+    s: false,
+    a: false,
 };
 
 function whichKeyIsPressed(key, down = true) {
-    if (key === "ArrowRight") keysPressed[key] = down ? true : false;
-    else if (key === "ArrowLeft") keysPressed[key] = down ? true : false;
-    else if (key === "ArrowUp") keysPressed[key] = down ? true : false;
-    else if (key === "ArrowDown") keysPressed[key] = down ? true : false;
+    if (key === "w") keysPressed[key] = down ? true : false;
+    else if (key === "d") keysPressed[key] = down ? true : false;
+    else if (key === "s") keysPressed[key] = down ? true : false;
+    else if (key === "a") keysPressed[key] = down ? true : false;
 }
 
 document.addEventListener("keydown", (e) => whichKeyIsPressed(e.key));
 document.addEventListener("keyup", (e) => whichKeyIsPressed(e.key, false));
-
-const startBtns = document.querySelectorAll(".start-btns");
-const mainMenuDiv = document.querySelector("#main-menu-div");
-const nicknameDiv = document.querySelector("#nickname-div");
-const nicknameInput = document.querySelector("#nickname-input");
 
 startBtns.forEach((button) => {
     button.addEventListener("click", () => {
         LIVES_LEFT =
             button.id === "normal-btn" ? createHearts(3) : createHearts(1);
 
-        resetSettings();
-        updateSpawnInterval();
         updateEnemeyVelocityInterval();
+        updateSpawnInterval();
+        resetSettings();
         startTimer();
         animate();
         nicknameDiv.innerText = nicknameInput.value;
@@ -369,7 +362,6 @@ startBtns.forEach((button) => {
     });
 });
 
-const playAgainBtn = document.querySelector("#play-again-btn");
 playAgainBtn.addEventListener("click", () => {
     endingDialogDiv.style.display = "none";
     mainMenuDiv.style.display = "flex";
