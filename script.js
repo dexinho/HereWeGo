@@ -24,15 +24,14 @@ class Player {
     }
 
     draw = () => {
-        // ctx.fillStyle = "red";
-        ctx.drawImage(icon, this.position.x, this.position.y, 50, 50);
-
-        // ctx.fillRect(
-        //     this.position.x,
-        //     this.position.y,
-        //     this.size.width,
-        //     this.size.height
-        // );
+        console.log(icon.complete)
+        ctx.drawImage(
+            icon,
+            this.position.x,
+            this.position.y,
+            this.size.width,
+            this.size.height
+        );
     };
 
     update = () => {
@@ -119,7 +118,7 @@ let OBSTACLE_ID = 1;
 
 let SPAWN_INTERVAL;
 
-function updateInverval() {
+function updateSpawnInterval() {
     clearInterval(SPAWN_INTERVAL);
     SPAWN_INTERVAL = setInterval(enemySpawn, ENEMY_SPAWN_SPEED);
 }
@@ -148,7 +147,7 @@ function enemySpawn() {
 
     if (OBSTACLES.length % 5 === 0 && ENEMY_SPAWN_SPEED > 200) {
         ENEMY_SPAWN_SPEED -= 100;
-        updateInverval();
+        updateSpawnInterval();
     }
 }
 
@@ -362,7 +361,7 @@ startBtns.forEach((button) => {
             button.id === "normal-btn" ? createHearts(3) : createHearts(1);
 
         resetSettings();
-        updateInverval();
+        updateSpawnInterval();
         updateEnemeyVelocityInterval();
         startTimer();
         animate();
