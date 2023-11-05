@@ -6,7 +6,7 @@ ctx.fillStyle = "black";
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 const icon = new Image();
-icon.src = "/assets/transformers_icon_2.png";
+icon.src = "assets/transformers_icon_2.png";
 icon.onload = () => {
     ctx.drawImage(icon, 400, 300, 50, 50);
 };
@@ -24,7 +24,6 @@ class Player {
     }
 
     draw = () => {
-        console.log(icon.complete)
         ctx.drawImage(
             icon,
             this.position.x,
