@@ -1,9 +1,14 @@
 const canvas = document.querySelector("canvas");
-const CX = canvas.getContext("2d");
+const ctx = canvas.getContext("2d");
 canvas.width = 1000;
 canvas.height = 650;
-CX.fillStyle = "black";
-CX.fillRect(0, 0, canvas.width, canvas.height);
+ctx.fillStyle = "black";
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+const icon = new Image()
+icon.src = '/assets/transformers_icon_2.png'
+
+console.log(icon)
 
 const highscoreCountDiv = document.querySelector("#highscore-count-div");
 let HIGHSCORE = 0;
@@ -17,13 +22,14 @@ class Player {
     }
 
     draw = () => {
-        CX.fillStyle = "red";
-        CX.fillRect(
-            this.position.x,
-            this.position.y,
-            this.size.width,
-            this.size.height
-        );
+        // ctx.fillStyle = "red";
+        ctx.drawImage(icon, this.position.x, this.position.y, 50, 50)
+        // ctx.fillRect(
+        //     this.position.x,
+        //     this.position.y,
+        //     this.size.width,
+        //     this.size.height
+        // );
     };
 
     update = () => {
@@ -80,8 +86,8 @@ class Enemy {
         this.position.y += this.velocity.y;
         this.position.x += this.velocity.x;
 
-        CX.fillStyle = this.color;
-        CX.fillRect(
+        ctx.fillStyle = this.color;
+        ctx.fillRect(
             this.position.x,
             this.position.y,
             this.size.width,
@@ -189,6 +195,8 @@ const removeObstacle = (id) => {
 
 const resetSettings = () => {
     player.setVelocity = 1;
+    player.position.x = (canvas.width - 50) / 2
+    player.position.y = canvas.height - 100
     ENEMY_VELOCITY_X = 0;
     ENEMY_VELOCITY_Y = 1;
     ENEMY_SPAWN_SPEED = 1000;
@@ -246,8 +254,8 @@ const endingDialog = document.querySelector("#ending-dialog");
 
 function animate() {
     const frame = window.requestAnimationFrame(animate);
-    CX.fillStyle = "black";
-    CX.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     player.update();
 
     OBSTACLES.forEach((obstacle) => {
