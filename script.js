@@ -24,8 +24,8 @@ const endingDialogDiv = document.querySelector("#ending-div");
 const highscoreDiv = document.querySelector("#highscore-div");
 const livesLeftDiv = document.querySelector("#lives-left-div");
 const playAgainBtn = document.querySelector("#play-again-btn");
-const startBtns = document.querySelectorAll(".start-btns");
 const mainMenuDiv = document.querySelector("#main-menu-div");
+const startBtns = document.querySelectorAll(".start-btns");
 const nicknameDiv = document.querySelector("#nickname-div");
 const nicknameInput = document.querySelector("#nickname-input");
 
@@ -189,16 +189,13 @@ const checkForCollision = ({ id, posX, posY, width, height }) => {
     ) {
         removeCollidedObstacle(id);
         changeHeartShape();
-        return true;
+        LIVES_LEFT--;
     }
-
-    return false;
 };
 
 const removeCollidedObstacle = (id) => {
     let obstacleIndex = OBSTACLES.findIndex((obstacle) => obstacle.id === id);
     OBSTACLES.splice(obstacleIndex, 1);
-    LIVES_LEFT--;
 };
 
 const startTimer = () => {
@@ -271,24 +268,24 @@ function animate() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     player.update();
 
+    if (LIVES_LEFT === 0) {
+        window.cancelAnimationFrame(frame);
+        endingDialogDiv.style.display = "flex";
+        writeStats();
+        stopTimer();
+    }
+
     OBSTACLES.forEach((obstacle) => {
         obstacle.move();
 
-        if (
-            checkForCollision({
-                id: obstacle.id,
-                posX: obstacle.position.x,
-                posY: obstacle.position.y,
-                width: obstacle.size.width,
-                height: obstacle.size.height,
-            }) &&
-            LIVES_LEFT === 0
-        ) {
-            window.cancelAnimationFrame(frame);
-            endingDialogDiv.style.display = "flex";
-            writeStats();
-            stopTimer();
-        }
+        checkForCollision({
+            id: obstacle.id,
+            posX: obstacle.position.x,
+            posY: obstacle.position.y,
+            width: obstacle.size.width,
+            height: obstacle.size.height,
+        });
+
         obstacle.velocity.x *= checkIfOutOfBounds({
             id: obstacle.id,
             posX: obstacle.position.x,
@@ -301,9 +298,10 @@ function animate() {
 }
 
 const writeLetterByLetter = (placeToWrite, text) => {
-    placeToWrite.innerText = "";
     for (const id of TIMEOUT_IDS) clearTimeout(id);
-
+    TIMEOUT_IDS.length = 0
+    
+    placeToWrite.innerText = "";
     return new Promise((res) => {
         for (let i = 0; i < text.length; i++) {
             TIMEOUT_IDS.push(
@@ -332,16 +330,16 @@ const writeStats = async () => {
 
 const keysPressed = {
     w: false,
-    d: false,
-    s: false,
     a: false,
+    s: false,
+    d: false,
 };
 
 function whichKeyIsPressed(key, down = true) {
     if (key === "w") keysPressed[key] = down ? true : false;
-    else if (key === "d") keysPressed[key] = down ? true : false;
-    else if (key === "s") keysPressed[key] = down ? true : false;
     else if (key === "a") keysPressed[key] = down ? true : false;
+    else if (key === "s") keysPressed[key] = down ? true : false;
+    else if (key === "d") keysPressed[key] = down ? true : false;
 }
 
 document.addEventListener("keydown", (e) => whichKeyIsPressed(e.key));
