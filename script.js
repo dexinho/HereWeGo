@@ -5,13 +5,14 @@ canvas.height = 650;
 ctx.fillStyle = "black";
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-const icon = new Image()
-icon.src = '/assets/transformers_icon_2.png'
+const icon = new Image();
+icon.src = "/assets/transformers_icon_2.png";
 
-console.log(icon)
+console.log(icon);
 
 const highscoreCountDiv = document.querySelector("#highscore-count-div");
 let HIGHSCORE = 0;
+let SURVIVED_TIME = 0;
 let LIVES_LEFT = 0;
 
 class Player {
@@ -23,7 +24,7 @@ class Player {
 
     draw = () => {
         // ctx.fillStyle = "red";
-        ctx.drawImage(icon, this.position.x, this.position.y, 50, 50)
+        ctx.drawImage(icon, this.position.x, this.position.y, 50, 50);
         // ctx.fillRect(
         //     this.position.x,
         //     this.position.y,
@@ -193,15 +194,27 @@ const removeObstacle = (id) => {
     OBSTACLES.splice(obstacleIndex, 1);
 };
 
+let TIMER_INTERVAL;
+const startTimer = () => {
+    TIMER_INTERVAL = setInterval(() => {
+        SURVIVED_TIME++;
+    }, 1000);
+};
+
+const stopTimer = () => {
+    clearInterval(TIMER_INTERVAL);
+};
+
 const resetSettings = () => {
     player.setVelocity = 1;
-    player.position.x = (canvas.width - 50) / 2
-    player.position.y = canvas.height - 100
+    player.position.x = (canvas.width - 50) / 2;
+    player.position.y = canvas.height - 100;
     ENEMY_VELOCITY_X = 0;
     ENEMY_VELOCITY_Y = 1;
     ENEMY_SPAWN_SPEED = 1000;
     OBSTACLE_ID = 1;
     HIGHSCORE = 0;
+    SURVIVED_TIME = 0;
     OBSTACLES.length = 0;
 };
 
@@ -250,7 +263,7 @@ const updateEnemeyVelocityInterval = () => {
     }, ENEMY_SPAWN_SPEED * 15);
 };
 
-const endingDialogDiv = document.querySelector("#ending-dialog-div");
+const endingDialogDiv = document.querySelector("#ending-div");
 
 function animate() {
     const frame = window.requestAnimationFrame(animate);
@@ -272,8 +285,9 @@ function animate() {
             LIVES_LEFT === 0
         ) {
             window.cancelAnimationFrame(frame);
-            endingDialogDiv.style.display = 'flex'
+            endingDialogDiv.style.display = "flex";
             writeStats();
+            stopTimer();
         }
         obstacle.velocity.x *= checkIfOutOfBounds({
             id: obstacle.id,
@@ -305,19 +319,17 @@ const writeLetterByLetter = (placeToWrite, text) => {
 };
 
 const writeStats = async () => {
-    const nicknameDialogSpan = document.querySelector("#nickname-dialog-span");
-    const pointsScoredDialogSpan = document.querySelector(
-        "#points-scored-dialog-span"
-    );
-
-    console.log(nicknameDialogSpan);
-    console.log(pointsScoredDialogSpan);
+    const nicknameResultSpan = document.querySelector("#nickname-result-span");
+    const pointsScoredSpan = document.querySelector("#points-scored-span");
+    const survivedTimerSpan = document.querySelector("#survived-timer-span");
 
     let nickname = `Player: ${nicknameInput.value}`;
     let pointsScored = `Points: ${HIGHSCORE}`;
+    let survivedFor = `Survived: ${SURVIVED_TIME} seconds`
 
-    await writeLetterByLetter(nicknameDialogSpan, nickname);
-    await writeLetterByLetter(pointsScoredDialogSpan, pointsScored);
+    await writeLetterByLetter(nicknameResultSpan, nickname);
+    await writeLetterByLetter(pointsScoredSpan, pointsScored);
+    await writeLetterByLetter(survivedTimerSpan, survivedFor);
 };
 
 const keysPressed = {
@@ -350,6 +362,7 @@ startBtns.forEach((button) => {
         resetSettings();
         updateInverval();
         updateEnemeyVelocityInterval();
+        startTimer();
         animate();
         nicknameDiv.innerText = nicknameInput.value;
         mainMenuDiv.style.display = "none";
@@ -358,6 +371,6 @@ startBtns.forEach((button) => {
 
 const playAgainBtn = document.querySelector("#play-again-btn");
 playAgainBtn.addEventListener("click", () => {
-    endingDialogDiv.style.display = 'none'
+    endingDialogDiv.style.display = "none";
     mainMenuDiv.style.display = "flex";
 });

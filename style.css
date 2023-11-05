@@ -89,18 +89,10 @@ button:hover {
     text-align: center;
 }
 
-/* #ending-dialog {
-    position: absolute;
-    inset: 50%;
-    transform: translate(-50%, -50%);
-    width: 300px;
-    height: 300px;
-} */
-
-#ending-dialog-div {
+#ending-div {
     display: none;
     width: 300px;
-    height: 210px;
+    height: 250px;
     position: absolute;
     inset: 50%;
     transform: translate(-50%, -50%);
@@ -112,10 +104,11 @@ button:hover {
     background-color: rgb(163, 151, 151);
 }
 
-#nickname-dialog-div,
-#points-scored-dialog-div,
-#play-again-btn {
-    color: blue;
+#nickname-result-div,
+#points-scored-div,
+#play-again-btn,
+#survived-timer-div {
+    color: rgb(14, 43, 30);
     width: 90%;
     height: 3rem;
     font-size: 1.4rem;
