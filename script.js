@@ -151,9 +151,9 @@ function enemySpawn() {
     });
 
     OBSTACLES.unshift(obstacle);
-
-    if (OBSTACLES.length % 5 === 0 && ENEMY_SPAWN_SPEED > 200) {
-        ENEMY_SPAWN_SPEED -= 100;
+    console.log(ENEMY_SPAWN_SPEED)
+    if (SURVIVED_TIME % 5 === 0 && ENEMY_SPAWN_SPEED > 250) {
+        ENEMY_SPAWN_SPEED -= 50;
         updateSpawnInterval();
     }
 }
@@ -257,7 +257,7 @@ const updateEnemeyVelocityInterval = () => {
             ENEMY_VELOCITY_Y++;
             player.setVelocity = ++player.getVelocity;
         }
-        if (ENEMY_VELOCITY_Y === 4) ENEMY_VELOCITY_X = 3;
+        if (ENEMY_VELOCITY_Y === 4) ENEMY_VELOCITY_X = Math.floor(Math.random() * 3 + 2);
         if (ENEMY_VELOCITY_X === 0) ENEMY_VELOCITY_X = 1;
     }, ENEMY_SPAWN_SPEED * 15);
 };
@@ -348,7 +348,7 @@ document.addEventListener("keyup", (e) => whichKeyIsPressed(e.key, false));
 startBtns.forEach((button) => {
     button.addEventListener("click", () => {
         LIVES_LEFT =
-            button.id === "normal-btn" ? createHearts(3) : createHearts(1);
+            button.id === "normal-btn" ? createHearts(13) : createHearts(1);
 
         updateEnemeyVelocityInterval();
         updateSpawnInterval();
