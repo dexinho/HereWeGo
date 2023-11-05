@@ -7,8 +7,9 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 const icon = new Image();
 icon.src = "/assets/transformers_icon_2.png";
-
-console.log(icon);
+icon.onload = () => {
+    ctx.drawImage(icon, 400, 300, 50, 50);
+};
 
 const highscoreCountDiv = document.querySelector("#highscore-count-div");
 let HIGHSCORE = 0;
@@ -25,6 +26,7 @@ class Player {
     draw = () => {
         // ctx.fillStyle = "red";
         ctx.drawImage(icon, this.position.x, this.position.y, 50, 50);
+
         // ctx.fillRect(
         //     this.position.x,
         //     this.position.y,
@@ -325,7 +327,7 @@ const writeStats = async () => {
 
     let nickname = `Player: ${nicknameInput.value}`;
     let pointsScored = `Points: ${HIGHSCORE}`;
-    let survivedFor = `Survived: ${SURVIVED_TIME} seconds`
+    let survivedFor = `Survived: ${SURVIVED_TIME} seconds`;
 
     await writeLetterByLetter(nicknameResultSpan, nickname);
     await writeLetterByLetter(pointsScoredSpan, pointsScored);
