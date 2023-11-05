@@ -7,14 +7,13 @@ CX.fillRect(0, 0, canvas.width, canvas.height);
 
 const highscoreCountDiv = document.querySelector("#highscore-count-div");
 let HIGHSCORE = 0;
-
-let PLAYER_WIDTH = 50;
-let PLAYER_HEIGHT = 50;
+let LIVES_LEFT = 0;
 
 class Player {
-    constructor({ position, velocity }) {
+    constructor({ position, velocity, size }) {
         this.position = position;
         this.velocity = velocity;
+        this.size = size;
     }
 
     draw = () => {
@@ -22,8 +21,8 @@ class Player {
         CX.fillRect(
             this.position.x,
             this.position.y,
-            PLAYER_WIDTH,
-            PLAYER_HEIGHT
+            this.size.width,
+            this.size.height
         );
     };
 
@@ -32,7 +31,7 @@ class Player {
             if (
                 key === "ArrowRight" &&
                 keysPressed[key] &&
-                this.position.x + this.velocity < canvas.width - PLAYER_WIDTH
+                this.position.x + this.velocity < canvas.width - this.size.width
             )
                 this.position.x += this.velocity;
             if (
@@ -50,7 +49,8 @@ class Player {
             if (
                 key === "ArrowDown" &&
                 keysPressed[key] &&
-                this.position.y + this.velocity <= canvas.height - PLAYER_HEIGHT
+                this.position.y + this.velocity <=
+                    canvas.height - this.size.height
             )
                 this.position.y += this.velocity;
         }
@@ -91,8 +91,12 @@ class Enemy {
 }
 
 const player = new Player({
+    size: {
+        width: 50,
+        height: 50,
+    },
     position: {
-        x: (canvas.width - PLAYER_WIDTH) / 2,
+        x: (canvas.width - 50) / 2,
         y: canvas.height - 100,
     },
     velocity: 1,
@@ -139,23 +143,53 @@ function enemySpawn() {
     }
 }
 
-const checkForCollision = ({ posX, posY, width, height }) => {
-    if (
-        (posX + width === player.position.x &&
-            posY + height === player.position.y) ||
-        (posX === player.position.x + PLAYER_WIDTH &&
-            posY === player.position.y + PLAYER_HEIGHT)
-    ) {
-        console.log("---------");
-        console.log("collision");
+const changeHeartShape = () => {
+    const faHeart = document.querySelectorAll(".fa-heart");
+
+    for (let i = faHeart.length - 1; i >= 0; i--) {
+        if (faHeart[i].classList.contains("fa-solid")) {
+            faHeart[i].classList.remove("fa-solid");
+            faHeart[i].classList.add("fa-regular");
+            break;
+        }
     }
 };
 
-const checkIfOutOfBounds = ({ id, posX, posY, width }) => {
-    let obstacleIndex = OBSTACLES.findIndex((obstacle) => obstacle.id === id);
+const checkForCollision = ({ id, posX, posY, width, height }) => {
+    const playerTop = player.position.y;
+    const playerRight = player.position.x + width;
+    const playerBottom = player.position.y + height;
+    const playerLeft = player.position.x
 
+    const obstacleTop = posY;
+    const obstacleRight = posX + width;
+    const obstacleBottom = posY + height;
+    const obstacleLeft = posX;
+
+    if (
+        playerTop < obstacleBottom &&
+        playerRight > obstacleLeft &&
+        playerBottom > obstacleTop &&
+        playerLeft < obstacleRight
+    ) {
+        console.log("collision");
+        removeObstacle(id);
+        changeHeartShape();
+        LIVES_LEFT--;
+        return true;
+    }
+
+    return false;
+};
+
+const removeObstacle = (id) => {
+    let obstacleIndex = OBSTACLES.findIndex((obstacle) => obstacle.id === id);
+    OBSTACLES.splice(obstacleIndex, 1);
+};
+
+const checkIfOutOfBounds = ({ id, posX, posY, width }) => {
     if (posY > canvas.height) {
-        OBSTACLES.splice(obstacleIndex, 1);
+        removeObstacle(id);
         HIGHSCORE++;
     }
 
@@ -164,8 +198,21 @@ const checkIfOutOfBounds = ({ id, posX, posY, width }) => {
     return 1;
 };
 
-const highscoreDiv = document.querySelector('#highscore-div')
-const livesLeftDiv = document.querySelector('#lives-left-div')
+const highscoreDiv = document.querySelector("#highscore-div");
+const livesLeftDiv = document.querySelector("#lives-left-div");
+
+const createHearts = (quantity) => {
+    livesLeftDiv.innerText = "";
+
+    for (let i = 0; i < quantity; i++) {
+        const heart = document.createElement("i");
+        heart.classList.add("fa-solid");
+        heart.classList.add("fa-heart");
+        livesLeftDiv.appendChild(heart);
+    }
+
+    return quantity;
+};
 
 const updateHighscore = () => {
     highscoreDiv.innerText = HIGHSCORE;
@@ -181,7 +228,7 @@ const enemyVelocityInterval = setInterval(() => {
 }, ENEMY_SPAWN_SPEED * 15);
 
 function animate() {
-    window.requestAnimationFrame(animate);
+    const frame = window.requestAnimationFrame(animate);
     CX.fillStyle = "black";
     CX.fillRect(0, 0, canvas.width, canvas.height);
     player.update();
@@ -189,13 +236,18 @@ function animate() {
     OBSTACLES.forEach((obstacle) => {
         obstacle.move();
 
-        checkForCollision({
-            posX: obstacle.position.x,
-            posY: obstacle.position.y,
-            width: obstacle.size.width,
-            height: obstacle.size.height,
-        });
-
+        if (
+            checkForCollision({
+                id: obstacle.id,
+                posX: obstacle.position.x,
+                posY: obstacle.position.y,
+                width: obstacle.size.width,
+                height: obstacle.size.height,
+            }) &&
+            LIVES_LEFT === 0
+        ) {
+            window.cancelAnimationFrame(frame);
+        }
         obstacle.velocity.x *= checkIfOutOfBounds({
             id: obstacle.id,
             posX: obstacle.position.x,
@@ -226,16 +278,17 @@ document.addEventListener("keyup", (e) => whichKeyIsPressed(e.key, false));
 
 const startBtns = document.querySelectorAll(".start-btns");
 const mainMenuDiv = document.querySelector("#main-menu-div");
-const nicknameDiv = document.querySelector('#nickname-div')
-const nicknameInput = document.querySelector('#nickname-input')
+const nicknameDiv = document.querySelector("#nickname-div");
+const nicknameInput = document.querySelector("#nickname-input");
 
 startBtns.forEach((button) => {
     button.addEventListener("click", () => {
-        if (button.id === "normal-btn") {
-            mainMenuDiv.style.display = "none";
-            nicknameDiv.innerText = nicknameInput.value
-            updateInverval();
-            animate();
-        }
+        LIVES_LEFT =
+            button.id === "normal-btn" ? createHearts(13) : createHearts(1);
+
+        updateInverval();
+        animate();
+        nicknameDiv.innerText = nicknameInput.value;
+        mainMenuDiv.style.display = "none";
     });
 });
