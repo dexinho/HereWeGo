@@ -157,9 +157,9 @@ const changeHeartShape = () => {
 
 const checkForCollision = ({ id, posX, posY, width, height }) => {
     const playerTop = player.position.y;
-    const playerRight = player.position.x + width;
-    const playerBottom = player.position.y + height;
-    const playerLeft = player.position.x
+    const playerRight = player.position.x + player.size.width;
+    const playerBottom = player.position.y + player.size.height;
+    const playerLeft = player.position.x;
 
     const obstacleTop = posY;
     const obstacleRight = posX + width;
@@ -284,7 +284,7 @@ const nicknameInput = document.querySelector("#nickname-input");
 startBtns.forEach((button) => {
     button.addEventListener("click", () => {
         LIVES_LEFT =
-            button.id === "normal-btn" ? createHearts(13) : createHearts(1);
+            button.id === "normal-btn" ? createHearts(3) : createHearts(1);
 
         updateInverval();
         animate();
