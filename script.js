@@ -91,12 +91,13 @@ class Player {
 }
 
 class Obstacle {
-    constructor({ id, size, position, velocity, color }) {
+    constructor({ id, size, position, velocity, color, icon }) {
         this.id = id;
         this.size = size;
         this.position = position;
         this.velocity = velocity;
         this.color = color;
+        this.icon = icon
     }
 
     move = () => {
@@ -104,7 +105,8 @@ class Obstacle {
         this.position.x += this.velocity.x;
 
         ctx.fillStyle = this.color;
-        ctx.fillRect(
+        ctx.drawImage(
+            this.icon,
             this.position.x,
             this.position.y,
             this.size.width,
@@ -131,6 +133,9 @@ function updateSpawnInterval() {
 }
 
 function enemySpawn() {
+    const icon = new Image()
+    icon.src = `assets/icon${Math.floor(Math.random() * 10)}.png`
+
     const obstacle = new Obstacle({
         id: OBSTACLE_ID++,
         position: {
@@ -148,6 +153,7 @@ function enemySpawn() {
         color: `rgb(${Math.floor(Math.random() * 200) + 56}, 
             ${Math.floor(Math.random() * 200 + 56)}, 
             ${Math.floor(Math.random() * 200 + 56)})`,
+        icon: icon,
     });
 
     OBSTACLES.unshift(obstacle);
@@ -348,7 +354,7 @@ document.addEventListener("keyup", (e) => whichKeyIsPressed(e.key, false));
 startBtns.forEach((button) => {
     button.addEventListener("click", () => {
         LIVES_LEFT =
-            button.id === "normal-btn" ? createHearts(13) : createHearts(1);
+            button.id === "normal-btn" ? createHearts(3) : createHearts(1);
 
         updateEnemeyVelocityInterval();
         updateSpawnInterval();
